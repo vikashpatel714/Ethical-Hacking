@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ethical Hacking: Wireshark & Network Traffic Analysis – 9-Day Course</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0e1726;--pn:#16233a;--ln:#2b3f5e;--fg:#e6edf7;--mu:#93a4bf;--ac:#4aa8ff;--wn:#ffb347;--ok:#5fd38d;--bd:#ff6b6b;--vi:#b79cff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f3f6fb;--pn:#fff;--ln:#c9d5e6;--fg:#12203a;--mu:#52627f;--ac:#0b6fd1;--wn:#a85d00;--ok:#16794a;--bd:#c62f2f;--vi:#6a4bd6}}
+:root[data-theme="light"]{--bg:#f3f6fb;--pn:#fff;--ln:#c9d5e6;--fg:#12203a;--mu:#52627f;--ac:#0b6fd1;--wn:#a85d00;--ok:#16794a;--bd:#c62f2f;--vi:#6a4bd6}
+:root[data-theme="dark"]{--bg:#0e1726;--pn:#16233a;--ln:#2b3f5e;--fg:#e6edf7;--mu:#93a4bf;--ac:#4aa8ff;--wn:#ffb347;--ok:#5fd38d;--bd:#ff6b6b;--vi:#b79cff}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 56px);scroll-behavior:smooth}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0}
+code,pre,.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+header{padding:56px 20px 36px;max-width:1100px;margin:auto}
+h1{font-size:clamp(32px,6vw,60px);line-height:1.05;font-weight:800;letter-spacing:-.02em}
+header p{color:var(--mu);max-width:62ch;font-size:18px}
+.fin{width:100%;max-width:420px;margin-top:18px;color:var(--ac)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);border-bottom:1px solid var(--ln);display:flex;gap:6px;overflow-x:auto;padding:10px 16px}
+nav a{flex:none;color:var(--fg);text-decoration:none;border:1px solid var(--ln);border-radius:6px;padding:4px 12px;font-size:14px}
+nav a:hover,nav a:focus-visible{border-color:var(--ac);color:var(--ac);outline:none}
+main{max-width:1100px;margin:auto;padding:0 20px 60px}
+.day{padding:44px 0;border-bottom:1px solid var(--ln)}
+.dh{display:flex;gap:14px;align-items:baseline;flex-wrap:wrap;margin-bottom:18px}
+.dn{font-family:"IBM Plex Mono",monospace;color:var(--ac);font-size:15px;border:1px solid var(--ac);padding:2px 10px;border-radius:4px}
+h2{font-size:clamp(24px,4vw,36px);font-weight:800;letter-spacing:-.01em}
+.grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:28px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+h3{font-size:17px;margin:14px 0 6px}ul{padding-left:20px;margin:0}li{margin:5px 0}
+pre{background:var(--pn);border:1px solid var(--ln);border-radius:6px;padding:12px;overflow-x:auto;font-size:13px;margin:6px 0;color:var(--ok)}
+.tip{border-left:3px solid var(--wn);padding:6px 12px;color:var(--mu);margin-top:12px;font-size:15px}
+.sim{background:var(--pn);border:1px solid var(--ln);border-radius:10px;padding:16px;min-width:0}
+.st{font-weight:500;margin-bottom:10px;color:var(--ac)}
+button{font:inherit;font-size:14px;background:var(--ac);color:#06121f;border:0;border-radius:6px;padding:6px 14px;cursor:pointer;margin:8px 8px 0 0}
+button.g{background:transparent;color:var(--fg);border:1px solid var(--ln)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--wn);outline-offset:2px}
+.note{color:var(--mu);font-size:14px;min-height:44px;margin:10px 0 0}
+.scroll{overflow:auto;max-height:190px;border:1px solid var(--ln);border-radius:6px}
+table{border-collapse:collapse;width:100%;font:12.5px "IBM Plex Mono",monospace;white-space:nowrap}
+td,th{padding:3px 8px;text-align:left}th{position:sticky;top:0;background:var(--bg);color:var(--mu);font-weight:500}
+tr.dns{background:#4aa8ff22}tr.tcp{background:#b79cff22}tr.http{background:#5fd38d22}tr.arp{background:#ffb34730}tr.icmp{background:#ff6b6b22}tr.tls{background:#8ee0e022}
+tr.sel{outline:2px solid var(--ac)}tbody tr{cursor:pointer}
+.wrap{border:2px solid;border-radius:6px;padding:8px 10px;margin:0;animation:pop .4s}
+.wrap>span{display:block;font-size:12px;font-family:"IBM Plex Mono",monospace;margin-bottom:6px}
+@keyframes pop{from{transform:scale(.9);opacity:0}}
+input[type=text]{width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--ln);border-radius:6px;padding:8px;font:14px "IBM Plex Mono",monospace}
+.ports{display:grid;grid-template-columns:repeat(auto-fill,minmax(58px,1fr));gap:6px;margin-bottom:8px}
+.pt{border:1px solid var(--ln);border-radius:5px;text-align:center;padding:5px 0;font:12px "IBM Plex Mono",monospace;transition:.3s}
+.pt.sc{background:var(--wn);color:#111}.pt.op{background:var(--ok);color:#06121f}.pt.cl{background:#ff6b6b33;border-color:var(--bd)}
+.log{font:12px/1.5 "IBM Plex Mono",monospace;max-height:120px;overflow:auto;background:var(--bg);border-radius:6px;padding:8px;border:1px solid var(--ln)}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font:13px "IBM Plex Mono",monospace}
+.bar b{display:block;height:18px;width:0;border-radius:3px;transition:width 1.2s ease;background:var(--ac)}
+.cards button{display:block;width:100%;text-align:left;background:var(--bg);color:var(--fg);border:1px solid var(--ln);margin:6px 0}
+svg text{fill:var(--fg);font:12px "IBM Plex Mono",monospace}
+footer{max-width:1100px;margin:auto;padding:30px 20px 60px;color:var(--mu);font-size:14px}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head><body>
+<header>
+<h1>Ethical Hacking:<br>Wireshark &amp; Network Traffic Analysis</h1>
+<p>A 9-day hands-on course. Each day pairs focused theory with a live simulation, so you can watch packets move before you ever open a real capture.</p>
+<svg class="fin" viewBox="0 0 420 70" aria-hidden="true"><path d="M0 60 Q60 60 100 40 T180 30 L200 4 L215 30 Q300 34 340 52 T420 60" fill="none" stroke="currentColor" stroke-width="2"/><path d="M0 66 H420" stroke="currentColor" stroke-dasharray="4 6" opacity=".5"/></svg>
+</header>
+<nav id="nav" aria-label="Days"></nav>
+<main id="days"></main>
+<footer>Practice only on networks and devices you own or have written permission to test. Capturing other people's traffic without authorization is illegal.</footer>
+<script>
+const $=id=>document.getElementById(id);
+const D=[
+["Network Fundamentals &amp; the OSI Model","Encapsulation",["Understand OSI and TCP/IP layers","Learn what MAC, IP, port and protocol mean","See how data is wrapped (encapsulated) before sending","Know the legal and ethical rules of sniffing"],"ip a        # list interfaces\nip route    # default gateway\narp -a      # ARP cache","Every Wireshark packet is a stack of headers. Learn the layers and the capture will read itself."],
+["Installing Wireshark &amp; the Interface","Live capture",["Install Wireshark and grant capture rights","Choose the right interface (Wi-Fi, Ethernet, lo)","Read the 3 panes: packet list, details, bytes","Use coloring rules, time formats and save .pcapng"],"sudo apt install wireshark\nsudo usermod -aG wireshark $USER\ntshark -D","Click any packet below to expand its layers, exactly like the real details pane."],
+["Capture &amp; Display Filters","Filter lab",["Capture filters (BPF) vs display filters","Filter by IP, port, protocol and flags","Combine with &amp;&amp;, || and !","Save filters as buttons"],"ip.addr == 10.0.0.5\ntcp.port == 80 && http\ntcp.flags.syn == 1 && tcp.flags.ack == 0\n!(arp || dns)","Capture filters cut data before saving. Display filters hide data after saving. Do not mix the syntax."],
+["TCP Deep Dive: Handshake &amp; Teardown","3-way handshake",["SYN, SYN-ACK, ACK explained","Sequence and acknowledgement numbers","FIN and RST: graceful vs abrupt close","Spot retransmissions and zero-window problems"],"tcp.analysis.retransmission\ntcp.flags.reset == 1\nFollow: Right-click > Follow > TCP Stream","Many RST packets or repeated SYNs with no reply usually point to a blocked port or a scan."],
+["DNS, HTTP &amp; ARP Analysis","DNS to web request",["Trace DNS query and response","Read HTTP requests, methods and status codes","Understand ARP request and reply","Export objects from HTTP streams"],"dns.qry.name contains \"login\"\nhttp.request.method == \"POST\"\narp.opcode == 2\nFile > Export Objects > HTTP","A browser visit starts with DNS, then TCP, then HTTP. Always read traffic in that order."],
+["Detecting Reconnaissance &amp; Port Scans","Port scan detector",["How SYN scans (nmap -sS) look on the wire","Open port = SYN-ACK, closed = RST","Find one source hitting many ports","Use Statistics &gt; Conversations"],"nmap -sS 192.168.56.101   # lab VM only\ntcp.flags.syn==1 && tcp.flags.ack==0\nStatistics > Conversations","One IP sending SYNs to dozens of ports within seconds is the classic scan signature."],
+["Man-in-the-Middle &amp; ARP Spoofing","ARP spoof",["How ARP trust is abused","Duplicate IP / two MACs for one IP","Detect with Expert Info warnings","Defences: DAI, static ARP, port security"],"arp.duplicate-address-frame\narp.opcode == 2 && eth.src != <gw-mac>\nAnalyze > Expert Information","Defenders look for one IP claiming two MAC addresses. Attackers need the victim to forget which is real."],
+["Cleartext Credentials, TLS &amp; Decryption","HTTP vs HTTPS",["Why HTTP, FTP, Telnet leak passwords","TLS handshake: Client Hello, certificates","Decrypt your own traffic with SSLKEYLOGFILE","Use Follow Stream to inspect sessions"],"http.request.method == \"POST\"\ntls.handshake.type == 1\nEdit > Preferences > TLS > Pre-master-secret log","If you can read a password in Wireshark, so can an attacker. Always prefer encrypted protocols."],
+["Capstone: Investigating a Suspicious PCAP","Anomaly hunt",["Open the Protocol Hierarchy","Check Conversations and Endpoints","Hunt DNS tunnelling, scans, spoofing","Write a short incident report"],"Statistics > Protocol Hierarchy\nStatistics > Endpoints\ndns.qry.name.len > 50","Start broad, then narrow: protocols, then talkers, then packets, then a story with evidence."]];
+$("nav").innerHTML=D.map((d,i)=>`<a href="#d${i+1}">Day ${i+1}</a>`).join("");
+$("days").innerHTML=D.map((d,i)=>`<section class="day" id="d${i+1}"><div class="dh"><span class="dn">Day ${i+1}</span><h2>${d[0]}</h2></div><div class="grid"><div><h3>What you will learn</h3><ul>${d[2].map(x=>`<li>${x}</li>`).join("")}</ul><h3>Commands &amp; filters</h3><pre>${d[3].replace(/</g,"&lt;")}</pre><div class="tip">${d[4]}</div></div><div class="sim"><div class="st">Simulation: ${d[1]}</div><div id="s${i+1}"></div></div></div></section>`).join("");
+
+/* ---------- helpers ---------- */
+function seq(el,actors,msgs){
+ const n=actors.length,W=680,H=70+msgs.length*40,xs=actors.map((a,i)=>n==2?[130,550][i]:90+i*250);
+ let s=`<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="Sequence diagram"><defs><marker id="ar${el.id}" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8z" fill="var(--ac)"/></marker></defs>`;
+ actors.forEach((a,i)=>s+=`<rect x="${xs[i]-55}" y="6" width="110" height="26" rx="5" fill="none" stroke="var(--ln)"/><text x="${xs[i]}" y="24" text-anchor="middle">${a}</text><line x1="${xs[i]}" y1="32" x2="${xs[i]}" y2="${H-6}" stroke="var(--ln)" stroke-dasharray="4 4"/>`);
+ msgs.forEach((m,i)=>{const y=62+i*40,a=xs[m[0]],b=xs[m[1]];s+=`<g class="m" style="opacity:0;transition:opacity .5s"><line x1="${a}" y1="${y}" x2="${b+(b>a?-3:3)}" y2="${y}" stroke="var(--ac)" stroke-width="2" marker-end="url(#ar${el.id})"/><text x="${(a+b)/2}" y="${y-7}" text-anchor="middle">${m[2]}</text></g>`});
+ el.innerHTML=s+`</svg><button>Play</button><button class="g">Reset</button><p class="note">Press Play to step through the exchange.</p>`;
+ const [p,r]=el.querySelectorAll("button"),g=el.querySelectorAll(".m"),nt=el.querySelector(".note");let tm=[];
+ const reset=()=>{tm.forEach(clearTimeout);g.forEach(x=>x.style.opacity=0);nt.textContent="Press Play to step through the exchange."};
+ r.onclick=reset;p.onclick=()=>{reset();g.forEach((x,i)=>tm.push(setTimeout(()=>{x.style.opacity=1;nt.textContent=msgs[i][3]},i*1300)))};
+}
+const esc=t=>String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");
+const S=[];
+
+/* Day 1 encapsulation */
+S[1]=el=>{
+ const L=[["Application data: HTTP GET /","#5fd38d","The application creates the data. Nothing is addressed yet."],["TCP header: src port 51000, dst port 80","#b79cff","Transport adds ports and sequence numbers."],["IP header: 192.168.1.10 → 93.184.216.34","#ffb347","Network adds source and destination IP addresses."],["Ethernet header: MAC addresses + FCS","#4aa8ff","Data link adds MAC addresses for the next hop. This is a full frame, what Wireshark shows."]];
+ el.innerHTML=`<div id="stk" style="min-height:150px"></div><button id="b1">Send message</button><button class="g" id="r1">Reset</button><p class="note" id="n1">Press Send to wrap the data layer by layer.</p>`;
+ let k=0,tm;const draw=()=>{let h="";for(let i=0;i<k;i++)h=`<div class="wrap" style="border-color:${L[i][1]}"><span style="color:${L[i][1]}">${L[i][0]}</span>${h}</div>`;$("stk").innerHTML=h};
+ $("b1").onclick=()=>{k=0;draw();clearInterval(tm);tm=setInterval(()=>{k++;draw();$("n1").textContent=L[k-1][2];if(k==4)clearInterval(tm)},1100)};
+ $("r1").onclick=()=>{clearInterval(tm);k=0;draw();$("n1").textContent="Press Send to wrap the data layer by layer."};
+};
+
+/* Day 2 live capture */
+S[2]=el=>{
+ const P=[["192.168.1.10","8.8.8.8","dns","DNS","Standard query A example.com",[["UDP","Src 51044, Dst 53"],["DNS","Query: example.com, type A"]]],["8.8.8.8","192.168.1.10","dns","DNS","Response A 93.184.216.34",[["UDP","Src 53, Dst 51044"],["DNS","Answer: 93.184.216.34"]]],["192.168.1.10","93.184.216.34","tcp","TCP","51200 → 80 [SYN]",[["TCP","Flags: SYN, Seq=0"]]],["93.184.216.34","192.168.1.10","tcp","TCP","80 → 51200 [SYN, ACK]",[["TCP","Flags: SYN, ACK"]]],["192.168.1.10","93.184.216.34","tcp","TCP","51200 → 80 [ACK]",[["TCP","Flags: ACK"]]],["192.168.1.10","93.184.216.34","http","HTTP","GET /index.html HTTP/1.1",[["TCP","Dst port 80, PSH ACK"],["HTTP","GET /index.html, Host: example.com"]]],["93.184.216.34","192.168.1.10","http","HTTP","HTTP/1.1 200 OK",[["TCP","Src port 80"],["HTTP","Status 200 OK, text/html"]]],["192.168.1.1","Broadcast","arp","ARP","Who has 192.168.1.10? Tell 192.168.1.1",[["ARP","Opcode: request"]]],["192.168.1.10","192.168.1.1","icmp","ICMP","Echo (ping) request",[["ICMP","Type 8 (Echo request)"]]]];
+ el.innerHTML=`<button id="a2">Start capture</button><button class="g" id="b2">Stop</button><div class="scroll" id="sc2"><table><thead><tr><th>No.</th><th>Time</th><th>Source</th><th>Destination</th><th>Proto</th><th>Info</th></tr></thead><tbody id="tb2"></tbody></table></div><pre id="dt2" style="color:var(--fg);min-height:90px">Click a packet to see its details.</pre>`;
+ let n=0,iv;const add=()=>{const p=P[n%P.length];n++;const tr=document.createElement("tr");tr.className=p[2];tr.innerHTML=`<td>${n}</td><td>${(n*.43).toFixed(3)}</td><td>${p[0]}</td><td>${p[1]}</td><td>${p[3]}</td><td>${p[4]}</td>`;tr.onclick=()=>{$("tb2").querySelectorAll("tr").forEach(r=>r.classList.remove("sel"));tr.classList.add("sel");$("dt2").textContent=`▸ Frame ${n}: ${60+p[5].length*20} bytes on wire\n▸ Ethernet II, ${p[2]=="arp"?"Dst: ff:ff:ff:ff:ff:ff":"Src/Dst MAC pair"}\n`+(p[2]=="arp"?"":`▸ IPv4, Src: ${p[0]}, Dst: ${p[1]}\n`)+p[5].map(x=>`▸ ${x[0]}: ${x[1]}`).join("\n")};$("tb2").append(tr);$("sc2").scrollTop=1e5};
+ $("a2").onclick=()=>{clearInterval(iv);iv=setInterval(add,650)};$("b2").onclick=()=>clearInterval(iv);
+};
+
+/* Day 3 filter lab */
+S[3]=el=>{
+ const K=[[1,"192.168.1.10","8.8.8.8","dns",51000,53,"Query A shop.com"],[2,"8.8.8.8","192.168.1.10","dns",53,51000,"Response"],[3,"192.168.1.10","10.0.0.5","tcp",50122,80,"[SYN]",1],[4,"10.0.0.5","192.168.1.10","tcp",80,50122,"[SYN, ACK]"],[5,"192.168.1.10","10.0.0.5","http",50122,80,"GET /login"],[6,"192.168.1.66","10.0.0.5","tcp",44001,22,"[SYN]",1],[7,"192.168.1.66","10.0.0.5","tcp",44001,23,"[SYN]",1],[8,"192.168.1.1","255.255.255.255","arp",0,0,"Who has 192.168.1.10?"],[9,"192.168.1.10","1.1.1.1","icmp",0,0,"Echo request"],[10,"192.168.1.10","142.250.1.1","tls",51500,443,"Client Hello"]].map(a=>({n:a[0],s:a[1],d:a[2],p:a[3],sp:a[4],dp:a[5],i:a[6],syn:a[7]||0,tcp:["tcp","http","tls"].includes(a[3])}));
+ const term=(t,p)=>{t=t.trim();if(t[0]=="!")return!term(t.slice(1),p);t=t.replace(/^\(|\)$/g,"").trim();const m=t.match(/^([\w.]+)\s*(==|!=)\s*(\S+)$/);if(m){const f={"ip.addr":[p.s,p.d],"ip.src":[p.s],"ip.dst":[p.d],"tcp.port":p.tcp?[p.sp,p.dp]:[],"tcp.flags.syn":[p.syn]}[m[1]];if(!f)throw 0;const h=f.some(v=>String(v)==m[3]);return m[2]=="=="?h:!h}if(!/^(tcp|udp|dns|http|tls|arp|icmp)$/.test(t)&&t)throw 0;return t==""||p.p==t||(t=="tcp"&&p.tcp)||(t=="udp"&&p.p=="dns")};
+ const ev=(f,p)=>f.replace(/\band\b/g,"&&").replace(/\bor\b/g,"||").split("||").some(o=>o.split("&&").every(t=>term(t,p)));
+ const pre=["tcp","ip.addr == 10.0.0.5","tcp.flags.syn == 1 && ip.src == 192.168.1.66","dns || arp","!(tcp)"];
+ el.innerHTML=`<input type="text" id="f3" placeholder="Type a display filter, e.g. tcp.port == 80" aria-label="Display filter">${pre.map((p,i)=>`<button class="g" data-i="${i}">${p}</button>`).join("")}<div class="scroll" style="margin-top:10px"><table><tbody id="tb3"></tbody></table></div><p class="note" id="n3"></p>`;
+ const run=()=>{const f=$("f3").value.trim();let c=0,bad=0;$("tb3").innerHTML=K.map(p=>{let ok=true;try{ok=f?ev(f.replace(/^!\(/,"!(").replace(/\(|\)/g,m=>m),p):true}catch(e){bad=1;ok=true}if(ok)c++;return ok?`<tr class="${p.p}"><td>${p.n}</td><td>${p.s}</td><td>${p.d}</td><td>${p.p.toUpperCase()}</td><td>${p.i}</td></tr>`:""}).join("");$("f3").style.borderColor=bad?"var(--bd)":f?"var(--ok)":"var(--ln)";$("n3").textContent=bad?"Red bar means the filter is not valid. Try one of the presets.":c+" of "+K.length+" packets displayed."};
+ $("f3").oninput=run;el.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("f3").value=pre[b.dataset.i];run()});run();
+};
+
+/* Day 4 TCP */
+S[4]=el=>seq(el,["Client","Server"],[[0,1,"SYN seq=100","Client asks to open a connection and sends its initial sequence number."],[1,0,"SYN, ACK seq=300 ack=101","Server agrees, sends its own sequence number and acknowledges 101."],[0,1,"ACK ack=301","Handshake complete. Both sides are in ESTABLISHED state."],[0,1,"GET / (PSH, ACK)","Application data now flows over the connection."],[1,0,"200 OK + data","Server replies with data."],[0,1,"FIN, ACK","Client begins a graceful close."],[1,0,"ACK","Server acknowledges the FIN."],[1,0,"FIN, ACK","Server closes its side. A final ACK ends the session."]]);
+
+/* Day 5 DNS + HTTP */
+S[5]=el=>seq(el,["Browser","DNS server","Web server"],[[0,1,"A? example.com","Browser asks the resolver for the IP of example.com (UDP 53)."],[1,0,"A 93.184.216.34","Resolver replies with the IP address."],[0,2,"SYN","Browser starts a TCP handshake with the web server."],[2,0,"SYN, ACK","Server accepts the connection."],[0,2,"GET / HTTP/1.1","Browser sends the HTTP request. Filter: http.request"],[2,0,"HTTP/1.1 200 OK","Server answers. Filter: http.response.code == 200"]]);
+
+/* Day 6 port scan */
+S[6]=el=>{
+ const ports=[21,22,23,25,53,80,110,135,139,143,443,445,993,1433,3306,3389,5432,5900,8080,8443],open=[22,80,443,3306,8080];
+ el.innerHTML=`<div class="ports" id="pg">${ports.map(p=>`<div class="pt" id="p${p}">${p}</div>`).join("")}</div><button id="a6">Start scan from 192.168.1.66</button><button class="g" id="b6">Reset</button><div class="log" id="l6" style="margin-top:10px">Waiting...</div><p class="note" id="n6"></p>`;
+ let iv;const reset=()=>{clearInterval(iv);ports.forEach(p=>$("p"+p).className="pt");$("l6").innerHTML="Waiting...";$("n6").textContent=""};
+ $("b6").onclick=reset;$("a6").onclick=()=>{reset();$("l6").innerHTML="";let i=0;iv=setInterval(()=>{if(i>=ports.length){clearInterval(iv);$("n6").innerHTML=`<b style="color:var(--bd)">Detection:</b> ${ports.length} SYN packets from one source in a few seconds, ${open.length} ports answered. Filter: <code>tcp.flags.syn==1 &amp;&amp; tcp.flags.ack==0</code>`;return}const p=ports[i++],o=open.includes(p);$("p"+p).className="pt "+(o?"op":"cl");$("l6").innerHTML+=`SYN → :${p} &nbsp; ${o?'<span style="color:var(--ok)">SYN,ACK (open)</span>':'<span style="color:var(--bd)">RST,ACK (closed)</span>'}<br>`;$("l6").scrollTop=1e5},330)};
+};
+
+/* Day 7 ARP spoof */
+S[7]=el=>{
+ const V=[90,100],G=[590,100],A=[340,215];
+ el.innerHTML=`<svg viewBox="0 0 680 270" width="100%" role="img" aria-label="Network topology"><line x1="90" y1="100" x2="590" y2="100" stroke="var(--ln)"/><line x1="90" y1="100" x2="340" y2="215" stroke="var(--ln)"/><line x1="340" y1="215" x2="590" y2="100" stroke="var(--ln)"/>${[[V,"Victim","192.168.1.10","var(--ac)"],[G,"Gateway","192.168.1.1 · MAC aa:aa","var(--ok)"],[A,"Attacker","MAC ee:ee","var(--bd)"]].map(n=>`<circle cx="${n[0][0]}" cy="${n[0][1]}" r="26" fill="var(--pn)" stroke="${n[3]}" stroke-width="2"/><text x="${n[0][0]}" y="${n[0][1]+4}" text-anchor="middle">${n[1]}</text><text x="${n[0][0]}" y="${n[0][1]+(n[1]=="Attacker"?46:46)}" text-anchor="middle" style="font-size:11px">${n[2]}</text>`).join("")}<circle id="dot" r="7" fill="var(--wn)" cx="90" cy="100"/></svg><button id="a7">Normal traffic</button><button id="b7" class="g">Launch ARP spoof</button><pre id="t7" style="color:var(--fg)">Victim ARP table:  192.168.1.1 → aa:aa (gateway)</pre><p class="note" id="n7">Traffic goes straight to the gateway.</p>`;
+ let iv;const go=pts=>{clearInterval(iv);let i=0,t=0;iv=setInterval(()=>{t+=.03;if(t>=1){t=0;i=(i+1)%(pts.length-1)}const a=pts[i],b=pts[i+1];$("dot").setAttribute("cx",a[0]+(b[0]-a[0])*t);$("dot").setAttribute("cy",a[1]+(b[1]-a[1])*t)},30)};
+ $("a7").onclick=()=>{$("t7").textContent="Victim ARP table:  192.168.1.1 → aa:aa (gateway)";$("n7").textContent="Traffic goes straight to the gateway.";go([V,G,V])};
+ $("b7").onclick=()=>{$("t7").innerHTML='Victim ARP table:  192.168.1.1 → <b style="color:var(--bd)">ee:ee (attacker!)</b>';$("n7").textContent="Forged ARP replies poison the cache. All traffic now passes through the attacker. Wireshark shows two MACs for 192.168.1.1 and an Expert Info duplicate-address warning.";go([V,A,G,A,V])};
+ go([V,G,V]);
+};
+
+/* Day 8 HTTP vs HTTPS */
+S[8]=el=>{
+ const http="POST /login HTTP/1.1\nHost: shop.local\nContent-Type: application/x-www-form-urlencoded\n\nuser=admin&pass=Secret@123";
+ const hex=()=>Array.from({length:96},()=>Math.floor(Math.random()*256).toString(16).padStart(2,"0")).join(" ").replace(/(.{48}) /,"$1\n");
+ el.innerHTML=`<button id="a8">Capture HTTP login</button><button id="b8" class="g">Capture HTTPS login</button><pre id="o8" style="min-height:140px;color:var(--fg);white-space:pre-wrap">Choose a protocol and watch what a sniffer sees.</pre><p class="note" id="n8"></p>`;
+ let iv;const type=(txt,fin,note)=>{clearInterval(iv);let i=0;$("n8").textContent="";iv=setInterval(()=>{i+=2;$("o8").textContent=txt.slice(0,i);if(i>=txt.length){clearInterval(iv);$("o8").innerHTML=fin(txt);$("n8").textContent=note}},20)};
+ $("a8").onclick=()=>type(http,t=>esc(t).replace("Secret@123",'<mark style="background:var(--bd);color:#fff">Secret@123</mark>'),"Plain text. The password is readable by anyone on the path.");
+ $("b8").onclick=()=>type("TLSv1.3 Application Data\n17 03 03 00 5a\n"+hex(),t=>esc(t),"Encrypted. The sniffer sees only random-looking bytes, not the credentials.");
+};
+
+/* Day 9 capstone */
+S[9]=el=>{
+ const B=[["TLS",46,"var(--ac)"],["TCP",20,"var(--vi)"],["DNS",12,"var(--ok)"],["HTTP",9,"var(--ok)"],["ARP",3,"var(--wn)"],["ICMP",2,"var(--wn)"],["TCP SYN, no reply",8,"var(--bd)"]];
+ const F=[["200-char random subdomains in DNS TXT queries","Suspicious: likely DNS tunnelling for data exfiltration. Filter: dns.qry.name.len > 50"],["Two MAC addresses answering for 192.168.1.1","Suspicious: ARP spoofing / MITM. Filter: arp.duplicate-address-frame"],["TLS 1.3 handshake to a known CDN","Normal: encrypted web traffic. No action needed."]];
+ el.innerHTML=`<div id="bars">${B.map(b=>`<div class="bar"><span style="width:130px">${b[0]}</span><b style="background:${b[2]}" data-w="${b[1]*2}"></b><span>${b[1]}%</span></div>`).join("")}</div><button id="a9">Replay protocol hierarchy</button><div class="cards" style="margin-top:8px"><strong>Which finding is suspicious? Click to check:</strong>${F.map((f,i)=>`<button data-i="${i}">${f[0]}</button>`).join("")}</div><p class="note" id="n9"></p>`;
+ const fill=()=>{const bs=el.querySelectorAll(".bar b");bs.forEach(b=>b.style.width="0");setTimeout(()=>bs.forEach(b=>b.style.width=b.dataset.w+"%"),60)};
+ $("a9").onclick=fill;fill();el.querySelectorAll(".cards button").forEach(b=>b.onclick=()=>$("n9").textContent=F[b.dataset.i][1]);
+};
+for(let i=1;i<=9;i++)S[i]($("s"+i));
+</script></body></html>
